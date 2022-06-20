@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
 use App\Models\Article;
 use App\Models\User;
+use App\Models\Post;
 
 class PostsController extends Controller
 {
@@ -70,7 +71,7 @@ class PostsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post, User $user)
     {
         //
     }
@@ -81,9 +82,9 @@ class PostsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
-        //
+        $this->authorize('update', $post);
     }
 
     /**
@@ -93,9 +94,28 @@ class PostsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Post $post)
     {
-        //
+        $this->authorize('update', $post);
+
+        $data  = request()->validate([
+            'title' => 'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg,fig,svg,',
+            'description' => 'required',
+            'location' => 'required',
+            'tags' => 'required',
+        ]);
+
+        if($request->hasFile('image')){
+            $image = $request->file('image');
+            $name = time().'.'.$image->getClientOriginalExtension();
+            $destinationPath = public_path('/images');
+            $imagePath = $destinationPath. "/". $name;
+            Image::make($image)->resize(800, 400)->save($imagePath);
+            $data['image'] = $name;
+        }
+
+        $post->fill($data)->save();
     }
 
     /**
@@ -104,8 +124,13 @@ class PostsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        //
+        $this->authorize('delete', $post);
+
+        $post->delete();
+
+        return redirect('/'.$post->user->username)->with('success', 'Post deleted successfully');
+
     }
 }
