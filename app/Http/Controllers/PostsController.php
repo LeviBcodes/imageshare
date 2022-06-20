@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
+use App\Models\Article;
+use App\Models\User;
 
 class PostsController extends Controller
 {
@@ -40,7 +43,25 @@ class PostsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data  = request()->validate([
+            'title' => 'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg,fig,svg,',
+            'description' => 'required',
+            'location' => 'required',
+            'tags' => 'required',
+        ]);
+
+        if($request->hasFile('image')){
+            $image = $request->file('image');
+            $name = time().'.'.$image->getClientOriginalExtension();
+            $destinationPath = public_path('/images');
+            $imagePath = $destinationPath. "/". $name;
+            Image::make($image)->resize(800, 400)->save($imagePath);
+            $data['image'] = $name;
+        }
+
+        auth()->user()->posts()->create($data);
+
     }
 
     /**
