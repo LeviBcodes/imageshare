@@ -90,8 +90,11 @@ class ProfilesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        //
+        $this->authorize('delete', $user->profile);
+        $user->profile->delete();
+
+        return redirect('/')->with('success', 'Profile deleted');
     }
 }

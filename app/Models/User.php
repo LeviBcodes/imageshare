@@ -42,6 +42,30 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * Create a user profile for the user
+     *
+     * 
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($user) {
+            $user->profile()->create();
+        });
+    }
+
+    /**
+     * Get the profile record associated with the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Profile>
+     */
+    public function profile() : \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne('App\Models\Profile');
+    }
+
     public function posts()
     {
         return $this->hasMany(Post::class);
