@@ -15,11 +15,18 @@ use App\Http\Controllers\PagesController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+Route::get('/', [\App\Http\Controllers\PagesController::class, 'index'])->name('welcome');
+
+Route::get('/about', [App\Http\Controllers\PagesController::class, 'about'])->name('about');
+
+Route::get('/contact', [App\Http\Controllers\PagesController::class, 'contact'])->name('contact');
+
+Route::get('/privacypolicy', [App\Http\Controllers\PagesController::class, 'privacypolicy'])->name('privacypolicy');
 
 Route::get('/profile/{user}', [App\Http\Controllers\ProfilesController::class, 'index'])->name('profile');
+
+Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('search');
 
 Route::get('/dashboard', [App\Http\Controllers\PagesController::class, 'dashboard'])->name('dashboard');
 
